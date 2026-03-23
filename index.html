@@ -2,70 +2,52 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>PURE AI - Windows 7 Version</title>
+    <title>PURE AI - Stable Version</title>
     <style>
-        body { background: #121212; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; }
-        header { text-align: center; padding: 15px; border-bottom: 2px solid #00d2ff; background: #1e1e1e; }
-        #chat-window { flex: 1; overflow-y: auto; padding: 20px; }
-        .bubble { margin-bottom: 15px; padding: 12px; border-radius: 10px; max-width: 80%; line-height: 1.5; }
-        .user { background: #0072ff; align-self: flex-start; }
-        .ai { background: #333; align-self: flex-end; border: 1px solid #444; }
-        .input-area { padding: 20px; background: #1a1a1a; display: flex; gap: 10px; }
-        input { flex: 1; padding: 12px; border-radius: 5px; border: 1px solid #444; background: #252525; color: white; }
-        button { background: #00d2ff; color: black; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
+        body { background: #121212; color: white; font-family: Arial; margin: 0; padding: 20px; }
+        #chat-window { height: 300px; overflow-y: auto; border: 1px solid #00d2ff; padding: 10px; margin-bottom: 10px; background: #1e1e1e; }
+        input { width: 70%; padding: 10px; background: #252525; color: white; border: 1px solid #444; }
+        button { padding: 10px 20px; background: #00d2ff; cursor: pointer; border: none; font-weight: bold; }
+        .user { color: #00d2ff; margin-bottom: 5px; }
+        .ai { color: #00ff88; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
-<header><h1>PURE AI</h1></header>
-<div id="chat-window"></div>
-<div class="input-area">
-    <input type="text" id="user-input" placeholder="اكتب رسالتك هنا...">
-    <button onclick="startChat()">إرسال</button>
-</div>
+    <h1 style="text-align:center; color:#00d2ff;">PURE AI</h1>
+    <div id="chat-window"></div>
+    <input type="text" id="user-input" placeholder="اكتب هنا...">
+    <button onclick="askAI()">إرسال</button>
 
-<!-- استدعاء المكتبة بطريقة تقليدية جداً تناسب المتصفحات القديمة -->
-<script type="importmap">
-{
-  "imports": {
-    "@google/generative-ai": "https://esm.run"
-  }
-}
-</script>
+    <!-- استدعاء المكتبة برابط مباشر وسهل للمتصفحات القديمة -->
+    <script src="https://cdn.jsdelivr.net"></script>
 
-<script type="module">
-    import { GoogleGenerativeAI } from "@google/generative-ai";
+    <script>
+        async function askAI() {
+            const input = document.getElementById('user-input');
+            const chat = document.getElementById('chat-window');
+            const text = input.value;
+            if(!text) return;
 
-    const API_KEY = "AIzaSyAXqRXuwz1rDUhbyIIjCu9JTiOW3Ub_rJA";
-    const genAI = new GoogleGenerativeAI(API_KEY);
+            chat.innerHTML += <div class="user">أنت: ${text}</div>;
+            const temp = document.createElement('div');
+            temp.className = 'ai';
+            temp.innerText = 'جاري الرد...';
+            chat.appendChild(temp);
+            input.value = '';
 
-    window.startChat = async function() {
-        const input = document.getElementById('user-input');
-        const chatWindow = document.getElementById('chat-window');
-        const text = input.value.trim();
-
-        if (!text) return;
-
-        // إضافة رسالة المستخدم
-        chatWindow.innerHTML += <div class="bubble user">${text}</div>;
-        input.value = '';
-
-        // إضافة مكان رد الذكاء الاصطناعي
-        const tempId = 'ai-' + Date.now();
-        chatWindow.innerHTML += <div class="bubble ai" id="${tempId}">جاري التحميل...</div>;
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-
-        try {
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-            const result = await model.generateContent(text);
-            const response = await result.response;
-            document.getElementById(tempId).innerText = response.text();
-        } catch (e) {
-            document.getElementById(tempId).innerHTML = "خطأ: " + e.message;
+            try {
+                // استخدام المفتاح مباشرة وبطريقة بسيطة
+                const genAI = new window.GoogleGenerativeAI.GoogleGenerativeAI("AIzaSyAXqRXuwz1rDUhbyIIjCu9JTiOW3Ub_rJA");
+                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                const result = await model.generateContent(text);
+                const response = await result.response;
+                temp.innerText = "PURE AI: " + response.text();
+            } catch (e) {
+                temp.innerText = "خطأ: " + e.message;
+            }
+            chat.scrollTop = chat.scrollHeight;
         }
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-    }
-</script>
-
+    </script>
 </body>
 </html>
