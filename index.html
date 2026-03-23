@@ -52,31 +52,43 @@
         input.value = ""; 
         chat.scrollTop = chat.scrollHeight;
 
-        // إرسال الطلب مباشرة إلى جوجل (Fetch API)
         var API_KEY = "AIzaSyAXqRXuwz1rDUhbyIIjCu9JTiOW3Ub_rJA";
+        // الرابط المحدث للنسخة المستقرة
         var url = "https://generativelanguage.googleapis.com" + API_KEY;
 
         var data = {
-            contents: [{ parts: [{ text: text }] }]
+            "contents": [{
+                "parts": [{
+                    "text": text
+                }]
+            }]
         };
 
         fetch(url, {
             method: "POST",
-            body: JSON.stringify(data),
-            headers: { "Content-Type": "application/json" }
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
         })
-        .then(function(response) { return response.json(); })
+        .then(function(response) {
+            return response.json();
+        })
         .then(function(result) {
+            // تصحيح مسار الوصول للنص في رد جوجل
             if (result.candidates && result.candidates[0].content.parts[0].text) {
-                aiDiv.innerText = "PURE AI: " + result.candidates[0].content.parts[0].text;
+                var aiResponse = result.candidates[0].content.parts[0].text;
+                aiDiv.innerText = "PURE AI: " + aiResponse;
             } else {
-                aiDiv.innerText = "PURE AI: عذراً، لم أستطع فهم الطلب.";
+                aiDiv.innerText = "PURE AI: عذراً، حدث خطأ في معالجة الرد.";
+                console.log(result); // لمشاهدة الخطأ في الـ Console
             }
             chat.scrollTop = chat.scrollHeight;
         })
         .catch(function(err) {
             aiDiv.style.color = "red";
-            aiDiv.innerText = "خطأ في الاتصال: " + err.message;
+            aiDiv.innerText = "خطأ في الاتصال: تأكد من مفتاح API أو الإنترنت.";
+            console.error(err);
         });
     }
 
