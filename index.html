@@ -30,11 +30,10 @@
     <button id="send-btn" onclick="askAI()">إرسال</button>
 </div>
 
-<!-- استدعاء المكتبة برابط مباشر متوافق -->
-<script src="https://cdn.jsdelivr.net"></script>
+<!-- 1. تغيير رابط المكتبة لنسخة أكثر استقراراً وتوافقاً -->
+<script src="https://unpkg.com"></script>
 
 <script>
-    // استخدام الطريقة التقليدية (ES5) لضمان العمل على ويندوز 7
     function askAI() {
         var input = document.getElementById('user-input');
         var chat = document.getElementById('chat-window');
@@ -42,34 +41,33 @@
 
         if (text === "") return;
 
-        // عرض رسالة المستخدم
         var userDiv = document.createElement('div');
         userDiv.className = 'msg user';
         userDiv.innerHTML = '<b>أنت:</b> ' + text;
         chat.appendChild(userDiv);
 
-        // تجهيز مكان رد الذكاء الاصطناعي
         var aiDiv = document.createElement('div');
         aiDiv.className = 'msg ai';
         aiDiv.innerText = 'جاري التفكير...';
         chat.appendChild(aiDiv);
 
-        input.value = ""; // مسح الخانة
+        input.value = ""; 
         chat.scrollTop = chat.scrollHeight;
 
         try {
-            // تهيئة المكتبة
+            // 2. التأكد من أن المكتبة محملة قبل الاستخدام
+            if (!window.GoogleGenerativeAI) {
+                throw new Error("لم يتم تحميل مكتبة الذكاء الاصطناعي بعد، يرجى تحديث الصفحة.");
+            }
+
             var API_KEY = "AIzaSyAXqRXuwz1rDUhbyIIjCu9JTiOW3Ub_rJA";
             var genAI = new window.GoogleGenerativeAI.GoogleGenerativeAI(API_KEY);
             var model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-            // إرسال الطلب بنظام then/catch المتوافق مع المتصفحات القديمة
             model.generateContent(text).then(function(result) {
                 return result.response;
             }).then(function(response) {
-                var responseText = response.text();
-                // تلوين الأكواد بشكل بسيط إذا وجدت
-                aiDiv.innerText = "PURE AI: " + responseText;
+                aiDiv.innerText = "PURE AI: " + response.text();
                 chat.scrollTop = chat.scrollHeight;
             }).catch(function(err) {
                 aiDiv.style.color = "red";
@@ -78,18 +76,12 @@
 
         } catch (e) {
             aiDiv.style.color = "red";
-            aiDiv.innerText = "خطأ برمجي: " + e.message;
+            aiDiv.innerText = "تنبيه: " + e.message;
         }
     }
 
-    // دعم زر Enter في الكيبورد
     document.getElementById('user-input').onkeypress = function(e) {
-        if (!e) e = window.event;
-        var keyCode = e.keyCode || e.which;
-        if (keyCode == '13') {
-            askAI();
-            return false;
-        }
+        if ((e.keyCode || e.which) == 13) { askAI(); return false; }
     }
 </script>
 
