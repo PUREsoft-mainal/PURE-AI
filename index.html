@@ -135,9 +135,8 @@
 <script type="module">
     import { GoogleGenerativeAI } from "https://esm.run";
 
-    const API_KEY = "AIzaSyAXqRXuwz1rDUhbyIIjCu9JTiOW3Ub_rJA" Google AI Studio
+    const API_KEY = "ضع_مفتاحك_هنا"; 
     const genAI = new GoogleGenerativeAI(API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     window.handleChat = async function() {
         const input = document.getElementById('user-input');
@@ -146,33 +145,27 @@
 
         if (!text) return;
 
-        // إضافة رسالة المستخدم
         chatWindow.innerHTML += <div class="bubble user-bubble">${text}</div>;
         input.value = '';
 
         try {
-            // إضافة مؤشر انتظار
             const tempAiId = 'ai-' + Date.now();
             chatWindow.innerHTML += <div class="bubble ai-bubble" id="${tempAiId}">جاري التفكير...</div>;
             
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
             const result = await model.generateContent(text);
             const response = await result.response;
             let aiText = response.text();
 
-            // معالجة الأكواد البرمجية لتظهر بشكل ملون
-            aiText = aiText.replace(/```(\w+)?([\s\S]*?)```/g, (match, lang, code) => {
-                return <pre><code class="language-${lang || 'javascript'}">${code.trim()}</code></pre>;
-            });
-
             document.getElementById(tempAiId).innerHTML = aiText;
-            Prism.highlightAll(); // تفعيل تلوين الكود
             chatWindow.scrollTop = chatWindow.scrollHeight;
 
         } catch (error) {
             console.error(error);
+            // إظهار الخطأ في واجهة الشات لنعرف المشكلة
+            alert("حدث خطأ: " + error.message);
         }
     }
 </script>
-
 </body>
 </html>
