@@ -37,15 +37,6 @@
 <script src="https://unpkg.com"></script>
 
 <script>
-    // دالة للتحقق من تحميل المكتبة فور فتح الصفحة
-    window.onload = function() {
-        if (window.GoogleGenerativeAI) {
-            console.log("تم تحميل المكتبة بنجاح!");
-        } else {
-            console.error("فشل تحميل المكتبة، جرب تحديث الصفحة.");
-        }
-    };
-
     function askAI() {
         var input = document.getElementById('user-input');
         var chat = document.getElementById('chat-window');
@@ -53,14 +44,7 @@
 
         if (text === "") return;
 
-        // 2. طريقة منقحة للتأكد من وجود المكتبة (تغيير اسم المتغير لضمان التوافق)
-        var AI_LIB = window.GoogleGenerativeAI;
-        
-        if (!AI_LIB) {
-            alert("المكتبة لم تصل من خوادم جوجل بعد. يرجى الانتظار ثوانٍ أو تحديث الصفحة.");
-            return;
-        }
-
+        // إظهار رسالة المستخدم
         var userDiv = document.createElement('div');
         userDiv.className = 'msg user';
         userDiv.innerHTML = '<b>أنت:</b> ' + text;
@@ -74,25 +58,32 @@
         input.value = ""; 
         chat.scrollTop = chat.scrollHeight;
 
-        try {
-            var API_KEY = "AIzaSyAXqRXuwz1rDUhbyIIjCu9JTiOW3Ub_rJA";
-            // 3. استخدام المنادي الصحيح للمكتبة
-            var genAI = new AI_LIB.GoogleGenerativeAI(API_KEY);
-            var model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // إرسال الطلب مباشرة إلى جوجل (Fetch API)
+        var API_KEY = "AIzaSyAXqRXuwz1rDUhbyIIjCu9JTiOW3Ub_rJA";
+        var url = "https://generativelanguage.googleapis.com" + API_KEY;
 
-            model.generateContent(text).then(function(result) {
-                return result.response;
-            }).then(function(response) {
-                aiDiv.innerText = "PURE AI: " + response.text();
-                chat.scrollTop = chat.scrollHeight;
-            }).catch(function(err) {
-                aiDiv.style.color = "red";
-                aiDiv.innerText = "خطأ من جوجل: " + err.message;
-            });
-        } catch (e) {
+        var data = {
+            contents: [{ parts: [{ text: text }] }]
+        };
+
+        fetch(url, {
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: { "Content-Type": "application/json" }
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(result) {
+            if (result.candidates && result.candidates[0].content.parts[0].text) {
+                aiDiv.innerText = "PURE AI: " + result.candidates[0].content.parts[0].text;
+            } else {
+                aiDiv.innerText = "PURE AI: عذراً، لم أستطع فهم الطلب.";
+            }
+            chat.scrollTop = chat.scrollHeight;
+        })
+        .catch(function(err) {
             aiDiv.style.color = "red";
-            aiDiv.innerText = "تنبيه فني: " + e.message;
-        }
+            aiDiv.innerText = "خطأ في الاتصال: " + err.message;
+        });
     }
 
     document.getElementById('user-input').onkeypress = function(e) {
