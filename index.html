@@ -1,171 +1,78 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PURE AI - Professional Assistant</title>
-    <!-- مكتبات التنسيق والأكواد -->
-    <link href="https://cdnjs.cloudflare.com" rel="stylesheet" />
+    <title>PURE AI</title>
     <style>
-        :root {
-            --primary-color: #00d2ff;
-            --bg-dark: #121212;
-            --chat-bg: #1e1e1e;
-            --text-color: #e0e0e0;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-dark);
-            color: var(--text-color);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        /* الشعار الثابت في الأعلى */
-        header {
-            text-align: center;
-            padding: 20px;
-            background: rgba(30, 30, 30, 0.9);
-            border-bottom: 2px solid var(--primary-color);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.2);
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 2rem;
-            letter-spacing: 5px;
-            color: var(--primary-color);
-            text-shadow: 0 0 10px var(--primary-color);
-        }
-
-        #chat-window {
-            flex: 1;
-            overflow-y: auto;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .bubble {
-            padding: 15px 20px;
-            border-radius: 15px;
-            max-width: 85%;
-            line-height: 1.6;
-            position: relative;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .user-bubble {
-            background: linear-gradient(135deg, #0072ff, #00c6ff);
-            align-self: flex-start;
-            border-bottom-right-radius: 2px;
-        }
-
-        .ai-bubble {
-            background: var(--chat-bg);
-            align-self: flex-end;
-            border-bottom-left-radius: 2px;
-            border: 1px solid #333;
-        }
-
-        /* منطقة الإدخال */
-        .input-container {
-            padding: 25px;
-            background: #1a1a1a;
-            display: flex;
-            gap: 15px;
-            border-top: 1px solid #333;
-        }
-
-        input {
-            flex: 1;
-            padding: 15px;
-            border-radius: 30px;
-            border: 1px solid #444;
-            background: #252525;
-            color: white;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        input:focus { border-color: var(--primary-color); box-shadow: 0 0 10px rgba(0,210,255,0.3); }
-
-        button {
-            background: var(--primary-color);
-            color: black;
-            border: none;
-            padding: 0 30px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-
-        button:hover { transform: scale(1.05); background: #0099cc; }
-
-        pre { border-radius: 10px; overflow: hidden; margin: 10px 0; }
+        :root { --primary: #00d2ff; --bg: #121212; --chat: #1e1e1e; }
+        body { margin: 0; background: var(--bg); color: #e0e0e0; font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; }
+        header { text-align: center; padding: 15px; border-bottom: 2px solid var(--primary); background: var(--chat); position: sticky; top: 0; }
+        header h1 { margin: 0; font-size: 1.8rem; color: var(--primary); text-shadow: 0 0 8px var(--primary); }
+        #chat-window { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .bubble { padding: 12px 18px; border-radius: 15px; max-width: 80%; line-height: 1.5; }
+        .user { background: linear-gradient(135deg, #0072ff, #00c6ff); align-self: flex-start; }
+        .ai { background: var(--chat); align-self: flex-end; border: 1px solid #333; }
+        .input-area { padding: 20px; background: #1a1a1a; display: flex; gap: 10px; border-top: 1px solid #333; }
+        input { flex: 1; padding: 12px; border-radius: 25px; border: 1px solid #444; background: #252525; color: white; outline: none; }
+        button { background: var(--primary); color: black; border: none; padding: 0 25px; border-radius: 25px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>PURE AI</h1>
-</header>
-
-<div id="chat-window">
-    <!-- الرسائل ستظهر هنا -->
+<header><h1>PURE AI</h1></header>
+<div id="chat-window"></div>
+<div class="input-area">
+    <input type="text" id="user-input" placeholder="اكتب سؤالك هنا...">
+    <button id="send-btn">إرسال</button>
 </div>
 
-<div class="input-container">
-    <input type="text" id="user-input" placeholder="اسأل عن كود، معلومة، أو اطلب تصميم صورة...">
-    <button onclick="handleChat()">إرسال</button>
-</div>
+<!-- استدعاء المكتبة بطريقة متوافقة أكثر -->
+<script type="importmap">
+  {
+    "imports": {
+      "@google/generative-ai": "https://esm.run"
+    }
+  }
+</script>
 
-<script src="https://cdnjs.cloudflare.com"></script>
 <script type="module">
-    import { GoogleGenerativeAI } from "https://esm.run";
+    import { GoogleGenerativeAI } from "@google/generative-ai";
 
+    // استبدل هذا المفتاح بمفتاحك الجديد فوراً
     const API_KEY = "AIzaSyAXqRXuwz1rDUhbyIIjCu9JTiOW3Ub_rJA"; 
     const genAI = new GoogleGenerativeAI(API_KEY);
 
-    window.handleChat = async function() {
-        const input = document.getElementById('user-input');
-        const chatWindow = document.getElementById('chat-window');
-        const text = input.value.trim();
+    const sendBtn = document.getElementById('send-btn');
+    const input = document.getElementById('user-input');
+    const chatWindow = document.getElementById('chat-window');
 
+    async function handleChat() {
+        const text = input.value.trim();
         if (!text) return;
 
-        chatWindow.innerHTML += <div class="bubble user-bubble">${text}</div>;
+        chatWindow.innerHTML += <div class="bubble user">${text}</div>;
         input.value = '';
 
+        const tempId = 'ai-' + Date.now();
+        chatWindow.innerHTML += <div class="bubble ai" id="${tempId}">جاري التفكير...</div>;
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+
         try {
-            const tempAiId = 'ai-' + Date.now();
-            chatWindow.innerHTML += <div class="bubble ai-bubble" id="${tempAiId}">جاري التفكير...</div>;
-            
             const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
             const result = await model.generateContent(text);
             const response = await result.response;
-            let aiText = response.text();
-
-            document.getElementById(tempAiId).innerHTML = aiText;
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-
+            document.getElementById(tempId).innerText = response.text();
         } catch (error) {
-            console.error(error);
-            // إظهار الخطأ في واجهة الشات لنعرف المشكلة
-            alert("حدث خطأ: " + error.message);
+            document.getElementById(tempId).innerHTML = <span style="color:red">خطأ: ${error.message}</span>;
         }
+        chatWindow.scrollTop = chatWindow.scrollHeight;
     }
+
+    // ربط الزر بالدالة برمجياً لتجنب خطأ Not Defined
+    sendBtn.addEventListener('click', handleChat);
+    input.addEventListener('keypress', (e) => { if(e.key === 'Enter') handleChat(); });
 </script>
+
 </body>
 </html>
