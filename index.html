@@ -2,52 +2,34 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>PURE AI - Stable Version</title>
+    <title>PURE AI - Windows 7</title>
     <style>
-        body { background: #121212; color: white; font-family: Arial; margin: 0; padding: 20px; }
-        #chat-window { height: 300px; overflow-y: auto; border: 1px solid #00d2ff; padding: 10px; margin-bottom: 10px; background: #1e1e1e; }
-        input { width: 70%; padding: 10px; background: #252525; color: white; border: 1px solid #444; }
-        button { padding: 10px 20px; background: #00d2ff; cursor: pointer; border: none; font-weight: bold; }
-        .user { color: #00d2ff; margin-bottom: 5px; }
-        .ai { color: #00ff88; margin-bottom: 15px; }
+        body { background: #121212; color: white; font-family: sans-serif; padding: 20px; text-align: center; }
+        #chat-window { height: 400px; overflow-y: auto; border: 2px solid #00d2ff; background: #1e1e1e; padding: 15px; margin-bottom: 10px; text-align: right; border-radius: 10px; }
+        .input-area { display: flex; gap: 10px; max-width: 600px; margin: 0 auto; }
+        input { flex: 1; padding: 12px; border-radius: 5px; border: 1px solid #444; background: #252525; color: white; }
+        button { padding: 10px 25px; background: #00d2ff; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: black; }
+        .user-msg { color: #00d2ff; margin-bottom: 10px; border-bottom: 1px dashed #333; padding-bottom: 5px; }
+        .ai-msg { color: #00ff88; margin-bottom: 20px; white-space: pre-wrap; }
     </style>
 </head>
 <body>
 
-    <h1 style="text-align:center; color:#00d2ff;">PURE AI</h1>
-    <div id="chat-window"></div>
-    <input type="text" id="user-input" placeholder="اكتب هنا...">
-    <button onclick="askAI()">إرسال</button>
+    <h1 style="color:#00d2ff;">PURE AI</h1>
+    
+    <div id="chat-window">
+        <div class="ai-msg">مرحباً بك! أنا PURE AI، كيف يمكنني مساعدتك اليوم؟</div>
+    </div>
 
-    <!-- استدعاء المكتبة برابط مباشر وسهل للمتصفحات القديمة -->
+    <div class="input-area">
+        <input type="text" id="user-input" placeholder="اكتب سؤالك هنا...">
+        <button id="send-btn">إرسال</button>
+    </div>
+
+    <!-- استدعاء المكتبة أولاً -->
     <script src="https://cdn.jsdelivr.net"></script>
+    <!-- استدعاء ملف البرمجة الخاص بك ثانياً -->
+    <script src="script.js"></script>
 
-    <script>
-        async function askAI() {
-            const input = document.getElementById('user-input');
-            const chat = document.getElementById('chat-window');
-            const text = input.value;
-            if(!text) return;
-
-            chat.innerHTML += <div class="user">أنت: ${text}</div>;
-            const temp = document.createElement('div');
-            temp.className = 'ai';
-            temp.innerText = 'جاري الرد...';
-            chat.appendChild(temp);
-            input.value = '';
-
-            try {
-                // استخدام المفتاح مباشرة وبطريقة بسيطة
-                const genAI = new window.GoogleGenerativeAI.GoogleGenerativeAI("AIzaSyAXqRXuwz1rDUhbyIIjCu9JTiOW3Ub_rJA");
-                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                const result = await model.generateContent(text);
-                const response = await result.response;
-                temp.innerText = "PURE AI: " + response.text();
-            } catch (e) {
-                temp.innerText = "خطأ: " + e.message;
-            }
-            chat.scrollTop = chat.scrollHeight;
-        }
-    </script>
 </body>
 </html>
