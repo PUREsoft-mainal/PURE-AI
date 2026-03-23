@@ -33,16 +33,18 @@
 <!-- استخدام رابط مباشر بديل وأكثر استقراراً -->
 <script src="https://www.gstatic.com"></script>
 <script src="https://cdn.jsdelivr.net"></script>
+<!-- 1. رابط مكتبة جوجل الرسمي والوحيد الذي يعمل عالمياً -->
+<script src="https://unpkg.com"></script>
 
 <script>
-    // دالة فحص تحميل المكتبة قبل بدء الشات
-    function checkLibrary() {
+    // دالة للتحقق من تحميل المكتبة فور فتح الصفحة
+    window.onload = function() {
         if (window.GoogleGenerativeAI) {
-            console.log("المكتبة جاهزة!");
-            return true;
+            console.log("تم تحميل المكتبة بنجاح!");
+        } else {
+            console.error("فشل تحميل المكتبة، جرب تحديث الصفحة.");
         }
-        return false;
-    }
+    };
 
     function askAI() {
         var input = document.getElementById('user-input');
@@ -51,13 +53,14 @@
 
         if (text === "") return;
 
-        // التحقق من وجود المكتبة
-        if (!checkLibrary()) {
-            alert("المتصفح لا يزال يحمل ملفات الذكاء الاصطناعي، يرجى الانتظار 5 ثوانٍ ثم المحاولة مرة أخرى.");
+        // 2. طريقة منقحة للتأكد من وجود المكتبة (تغيير اسم المتغير لضمان التوافق)
+        var AI_LIB = window.GoogleGenerativeAI;
+        
+        if (!AI_LIB) {
+            alert("المكتبة لم تصل من خوادم جوجل بعد. يرجى الانتظار ثوانٍ أو تحديث الصفحة.");
             return;
         }
 
-        // إظهار رسالة المستخدم
         var userDiv = document.createElement('div');
         userDiv.className = 'msg user';
         userDiv.innerHTML = '<b>أنت:</b> ' + text;
@@ -73,7 +76,8 @@
 
         try {
             var API_KEY = "AIzaSyAXqRXuwz1rDUhbyIIjCu9JTiOW3Ub_rJA";
-            var genAI = new window.GoogleGenerativeAI.GoogleGenerativeAI(API_KEY);
+            // 3. استخدام المنادي الصحيح للمكتبة
+            var genAI = new AI_LIB.GoogleGenerativeAI(API_KEY);
             var model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
             model.generateContent(text).then(function(result) {
@@ -83,15 +87,14 @@
                 chat.scrollTop = chat.scrollHeight;
             }).catch(function(err) {
                 aiDiv.style.color = "red";
-                aiDiv.innerText = "حدث خطأ في الاتصال: " + err.message;
+                aiDiv.innerText = "خطأ من جوجل: " + err.message;
             });
         } catch (e) {
             aiDiv.style.color = "red";
-            aiDiv.innerText = "تنبيه: " + e.message;
+            aiDiv.innerText = "تنبيه فني: " + e.message;
         }
     }
 
-    // السماح بالضغط على Enter
     document.getElementById('user-input').onkeypress = function(e) {
         if ((e.keyCode || e.which) == 13) { askAI(); return false; }
     }
